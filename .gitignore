@@ -1,1 +1,13 @@
 .env
+
+caddy-data/*
+!caddy-data/.gitkeep
+
+caddy-config/*
+!caddy-config/.gitkeep
+
+sr-admin-data/*
+!sr-admin-data/.gitkeep
+
+vt-data/*
+!vt-data/.gitkeep
