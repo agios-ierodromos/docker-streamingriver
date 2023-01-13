@@ -1,48 +1,62 @@
 version: '3.5'
 services:
   web:
-    image: caddy:latest
+    image: caddy-frontend:latest
     restart: unless-stopped
     env_file: .env
-    volumes: 
-       - ./caddy:/data
-       - ./Caddyfile:/etc/caddy/Caddyfile
+    volumes:
+      - ./caddy-data:/data:z
+      - ./Caddyfile:/etc/caddy/Caddyfile:z
+      - ./site:/srv:z
+      - ./caddy-config:/config:z
     ports:
-      - 80:80
-      - 443:443
+      - ${APP_PORT}:${SR_PORT}
+      - ${APP_TLS_PORT}:${SR_TLS_PORT}
     depends_on:
       - video-gateway
+
   sr-admin-gui:
-    image: ghcr.io/streamingriver/opensource-iptv:latest
+    image: sr-admin-gui:latest
     restart: unless-stopped
     env_file: .env
     depends_on:
-      - sr-nats-proxy
+      - nats-proxy
     volumes:
       - ./.env:/var/www/html/.env:z
-      - sqlite-db:/data
+      - ./sr-admin-data:/data:z
+    expose:
+      - 80
+
   nats:
     image: nats:latest
     restart: unless-stopped
-  sr-nats-proxy:
-    image: ghcr.io/streamingriver/go-http-nats-proxy:latest
+    expose:
+      - 80
+      - 4222
+
+  nats-proxy:
+    image: nats-proxy:latest
     restart: unless-stopped
     depends_on:
       - nats
+    expose:
+      - 80
+
   video-transcoder:
-    image: ghcr.io/streamingriver/video-transcoder:latest
+    image: video-transcoder:latest
     restart: unless-stopped
     depends_on:
       - nats
       - video-gateway
     env_file: .env
     volumes:
-      - vt-data:/etc/supervisor/conf.d
+      - ./vt-data:/etc/supervisor/conf.d:z
+    expose:
+      - 80
+
   video-gateway:
-    image: ghcr.io/streamingriver/video-gateway:latest
+    image: video-gateway:latest
     restart: unless-stopped
     env_file: .env
-
-volumes:
-  sqlite-db:
-  vt-data:
+    expose:
+      - 80
