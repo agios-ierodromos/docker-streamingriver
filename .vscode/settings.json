@@ -1,0 +1,11 @@
+{
+    "files.exclude": {
+        "**/.gitkeep": true
+    },
+    "search.exclude": {
+        "caddy-config/*": true,
+        "caddy-data/*": true,
+        "sr-admin-data/*": true,
+        "vt-data/*": true
+    }
+}
