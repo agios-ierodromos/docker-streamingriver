@@ -11,3 +11,5 @@ sr-admin-data/*
 
 vt-data/*
 !vt-data/.gitkeep
+
+site/config

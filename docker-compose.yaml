@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   web:
-    image: caddy-frontend:latest
+    image: ghcr.io/agios-ierodromos/caddy-frontend:latest
     restart: unless-stopped
     env_file: .env
     volumes:

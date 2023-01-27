@@ -42,6 +42,7 @@
 
 	log http.log {
 		include http.log
+
 		exclude http.log.access
 		exclude http.log.error
 
@@ -90,9 +91,25 @@
 		}
 	}
 
+	log http.stdlib {
+		include http.stdlib
+
+		output stdout
+
+		format json {
+			#format transform "⚙️	[94m[1m{level}[0m	{logger}				[37m[1m{msg}[0m
+			#	[90m{ }[0m" {
+			time_format common_log # "02/Jan/2006:15:04:05 -0700"
+			duration_format string
+			level_format upper
+		}
+	}
+
 	log http {
 		include http
+
 		exclude http.log
+		exclude http.stdlib
 		exclude handlers.reverse_proxy
 		exclude handlers.rewrite
 
@@ -101,19 +118,6 @@
 		format transform "⚙️	[94m[1m{level}[0m	{logger}				[37m[1m{msg}[0m
 			[90m{ }[0m" {
 			time_format common_log # "02/Jan/2006:15:04:05 -0700"
-			duration_format string
-			level_format upper
-		}
-	}
-
-	log admin {
-		include admin
-
-		output stdout
-
-		format transform "💼	[94m[1m{level}[0m	{logger}	[37m[1m{msg}[0m [90m{address}[0m
-			[90m{ }[0m" {
-			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
 			duration_format string
 			level_format upper
 		}
@@ -134,16 +138,52 @@
 
 	log tls.cache {
 		include tls.cache
+
 		exclude tls.cache.maintenance
 
 		output stdout
 
 		format transform "🔐	[94m[1m{level}[0m	{logger}			[37m[1m{msg}[0m
-			subjects:	[90m{subjects}[0m
-			expiration:	[90m{expiration}[0m
-			managed:	[90m{managed} {issuer_key}[0m
-			hash:		[94m{hash}[0m
-			cache size:	[90m{cache_size}/{cache_capacity}[0m
+			subjects:		[90m{subjects}[0m
+			expiration:		[90m{expiration}[0m
+			managed:		[90m{managed} {issuer_key}[0m
+			hash:			[94m{hash}[0m
+			cache size:		[90m{cache_size}/{cache_capacity}[0m
+			[90m{ }[0m" {
+			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
+			duration_format string
+			level_format upper
+		}
+	}
+
+	log tls.renew {
+		include tls.renew
+
+		output stdout
+
+		format transform "🔐	[94m[1m{level}[0m	{logger}			[37m[1m{msg}[0m [33m{error}[0m
+			identifier:		[90m{identifier}[0m
+			[90m{ }[0m" {
+			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
+			duration_format string
+			level_format upper
+		}
+	}
+
+	log tls.handshake {
+		include tls.handshake
+
+		output stdout
+
+		format transform "🤝	[94m[1m{level}[0m	{logger}			[37m[1m{msg}[0m [33m{error}[0m
+			identifier:		[33m{identifier:sni}[0m
+			remote:		[93m{remote_ip}:{remote_port}[0m
+			server:		[94m{server_name}[0m
+			cipher:		[90m{cipher_suites}[0m
+			cert_cache:		[90m{cert_cache_fill}[0m
+			should_load:		[90m{load_if_necessary}[0m
+			should_obtain_		[90m{obtain_if_necessary}[0m
+			on_demand:		[90m{on_demand}[0m
 			[90m{ }[0m" {
 			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
 			duration_format string
@@ -153,12 +193,15 @@
 
 	log tls {
 		include tls
+
 		exclude tls.cache
+		exclude tls.renew
+		exclude tls.handshake
 
 		output stdout
 
 		format transform "🔐	[94m[1m{level}[0m	{logger}				[37m[1m{msg}[0m [33m{error}[0m
-			identifiers:	[90m{identifiers}[0m
+			identifiers:		[90m{identifiers}[0m
 			[90m{ }[0m" {
 			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
 			duration_format string
@@ -185,9 +228,50 @@
 
 		output stdout
 		format transform "🎉	[94m[1m{level}[0m	{logger}				[37m[1m{msg}[0m [33m{name}[0m
-			id:		[90m{id}[0m
-			origin:		[94m{origin}[0m
-			data:		[93m{data}[0m
+			id:			[90m{id}[0m
+			origin:			[94m{origin}[0m
+			data:			[93m{data}[0m
+			[90m{ }[0m" {
+			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
+			duration_format string
+			level_format upper
+		}
+	}
+
+	log admin.api {
+		include admin.api
+
+		output stdout
+
+		format transform "💼	[94m[1m{level}[0m	{logger}	[37m[1m{msg}[0m [90m{address}[0m
+			[90m{ }[0m" {
+			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
+			duration_format string
+			level_format upper
+		}
+	}
+
+	log admin {
+		include admin
+
+		exclude admin.api
+
+		output stdout
+
+		format transform "💼	[94m[1m{level}[0m	{logger}	[37m[1m{msg}[0m [90m{address}[0m
+			[90m{ }[0m" {
+			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
+			duration_format string
+			level_format upper
+		}
+	}
+
+	log "" {
+		include ""
+
+		output stdout
+
+		format transform "💼	[94m[1m{level}[0m	{logger}	[37m[1m{msg}[0m [90m{address}[0m
 			[90m{ }[0m" {
 			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
 			duration_format string
@@ -196,16 +280,18 @@
 	}
 
 	log default {
-		exclude pki.ca.local
+		exclude ""
 		exclude admin
+		exclude admin.api
+		exclude pki.ca.local
 		exclude events
 		exclude tls
 		exclude http
 
 		output stdout
-
-		format transform "🖥️	[94m[1m{level}	[0m{logger}	[37m[1m{msg}[0m
-			[90m{ }[0m" {
+		format json {
+			#format transform "🖥️	[94m[1m{level}	[0m{logger}	[37m[1m{msg}[0m
+			#[90m{ }[0m" {
 			time_format iso8601 # "2006-01-02T15:04:05.000Z0700"
 			duration_format string
 			level_format upper
